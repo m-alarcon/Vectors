@@ -2,6 +2,7 @@ from PIL import Image, ImageDraw
 import numpy as np
 import cv2
 import math
+import json
 
 #Imagen a comparar (L)
 im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Fondo2.jpg")
@@ -25,4 +26,12 @@ if sigma_ih == 0:
 	corr = 1
 else:
 	corr = sigma_ih/(sigma_i*sigma_h)
+
+
+
+datosJSON = np.zeros((4,2,2), 'float')
+ldatosJSON = datosJSON.tolist()
+vectores=open('vectores.txt','w')
+json.dump(ldatosJSON, vectores)
+vectores.close()
 print (corr)
