@@ -4,39 +4,43 @@ import cv2
 import math
 import json
 
-def conv(g_l, g_r):
-	g_media_l = g_l.sum()/((g_l.shape[0])*(g_l.shape[1]))
-	g_media_r = g_r.sum()/((g_r.shape[0])*(g_r.shape[1]))
+def conv(g_i, g_h):
+	
+	media_i = g_i.sum()/((g_i.shape[0])*(g_i.shape[1]))
+	media_h = g_h.sum()/((g_h.shape[0])*(g_h.shape[1]))
 
-	sigma_l = math.sqrt((pow((g_l-g_media_l),2).sum())/((g_l.shape[0])*(g_l.shape[1])))
-	sigma_r = math.sqrt((pow((g_r-g_media_r),2).sum())/((g_r.shape[0])*(g_r.shape[1])))
+	sigma_i = math.sqrt((pow((g_i-media_i),2).sum())/((g_i.shape[0])*(g_i.shape[1])))
+	sigma_h = math.sqrt((pow((g_h-media_h),2).sum())/((g_h.shape[0])*(g_h.shape[1])))
 
-	#sigma_lr = (pow((g_l-g_media_l),2)*pow((g_r-g_media_r),2)).sum()/((g_l.shape[0])*(g_l.shape[1]))
-	sigma_lr = ((g_l-g_media_l)*(g_r-g_media_r)).sum()/((g_l.shape[0])*(g_l.shape[1]))
+	sigma_ih = ((g_i-media_i)*(g_h-media_h)).sum()/((g_h.shape[0])*(g_h.shape[1]))
 
-	if sigma_lr != 0:
-		corr = sigma_lr/(sigma_l*sigma_r)
+	if sigma_ih == 0:
+		corr = 1
 	else:
-		corr = 0
+		corr = sigma_ih/(sigma_i*sigma_h)
 
 	return corr
 
 
 pixeles = 0
 
-for p in range(383, 606):
+for p in range(444, 446):
 	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD1.bmp")#+str(p)+".bmp")
 	im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p)+".bmp")
+	print("Imagen anterior: Mario " + str(p))
 	#im = Image.open("D:/Downloads/Beca/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD"+str(p)+".bmp")
 	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Fondo2.jpg")
 	#im2 = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD_sillon/frameSD"+str(p+1)+".bmp")
 	im2 = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p+1)+".bmp")
+	print("Imagen siguiente: Mario " + str(p+1))
 	#im2 = Image.open("D:/Downloads/Beca/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD"+str(p)+".bmp")#estoy utilizando el mismo fotograma en los dos
 	#im2 = im
 	dibujo = ImageDraw.Draw(im2)
 	im3 = im.convert('L')
+	a_im3 = np.array(im3)
 	#im3.show()
 	im4 = im2.convert('L')
+	a_im4 = np.array(im4)
 	print (im.format, im.size, im.mode)
 	(ancho, largo) = im.size
 
@@ -83,30 +87,45 @@ for p in range(383, 606):
 		else:
 			fronteras_comp_columnas[i] = fronteras_comp_columnas[i-1]+ancho_bloq
 
+	restaTotal = 0
 	#Recorrer todos los cuadros de comparación de la imagen completa
-	for x in range(0, fronteras_columnas.shape[0] - 1):
-		for y in range(0, fronteras_filas.shape[0] - 1):
+	for y in range(0, fronteras_filas.shape[0] - 2):
+		for x in range(0, fronteras_columnas.shape[0] - 2):
 			#Recorrer el cuadro grande e ir sacando todos los bloques cuadrados
 			imagen_comp = im4.crop((fronteras_columnas[x]+offset,fronteras_filas[y]+offset,fronteras_columnas[x]+ancho_bloq+offset,fronteras_filas[y]+ancho_bloq+offset))
+
 			a_imagen_comp = np.array(imagen_comp)
-			corr_vector = np.zeros((fronteras_columnas[x+1]-fronteras_columnas[x],ancho_bloq), 'float')
+			corr_vector = np.zeros((ancho_bloq,ancho_bloq), 'float')
 			for i in range(0, corr_vector.shape[0]):
 				for j in range(0, corr_vector.shape[1]):
 					imagen = im3.crop((fronteras_columnas[x]+j,fronteras_filas[y]+i,fronteras_columnas[x]+ancho_bloq+j,fronteras_filas[y]+ancho_bloq+i))
 					a_imagen = np.array(imagen)
-					corr_vector[i][j] = conv(a_imagen_comp, a_imagen)
+					corr_vector[i,j] = conv(a_imagen_comp, a_imagen)
 					#print(conv(a_imagen_comp, a_imagen))
-
-			if(np.where(corr_vector == corr_vector.max())[0].shape[0] > 1):	
+					#dibujo.rectangle((fronteras_columnas[x]+offset, fronteras_filas[y]+offset) + (fronteras_columnas[x]+ancho_bloq+offset, fronteras_filas[y]+ancho_bloq+offset), outline="blue")
+					#dibujo.rectangle((fronteras_columnas[x]+j, fronteras_filas[y]+i) + (fronteras_columnas[x]+ancho_bloq+j, fronteras_filas[y]+ancho_bloq+i), outline="blue")
+					#im2.show()
+					#input("Presiona Enter para continuar...")
+			#print(corr_vector)
+			#input("Presiona Enter para continuar...")
+			if(np.where(corr_vector == corr_vector.max())[0].shape[0] > 1):	#Hay que elegir uno de los que salen, elijo el del centro
 				indicesx = int(ancho_bloq/2)
 				indicesy = int(ancho_bloq/2)
 			else:
-				indicesx = np.where(corr_vector == corr_vector.max())[0][0]
-				indicesy = np.where(corr_vector == corr_vector.max())[1][0]
-			#print(corr_vector)
+				indicesx = np.where(corr_vector == corr_vector.max())[1]
+				indicesy = np.where(corr_vector == corr_vector.max())[0]	
 			#print(indicesx, indicesy)
-
-			dibujo.line((fronteras_columnas[x+1], fronteras_filas[y+1]) + (fronteras_columnas[x+1]-offset+indicesx, fronteras_filas[y+1]-offset+indicesy), fill="blue")
+			dibujo.rectangle([(fronteras_columnas[x]+offset, fronteras_filas[y]+offset), (fronteras_columnas[x]+ancho_bloq+offset, fronteras_filas[y]+ancho_bloq+offset)], outline="green")
+			dibujo.rectangle([(fronteras_columnas[x]+indicesx, fronteras_filas[y]+indicesy), (fronteras_columnas[x]+ancho_bloq+indicesx, fronteras_filas[y]+ancho_bloq+indicesy)], outline="red")
+			imagen_3_crop_vector = im3.crop((fronteras_columnas[x]+indicesx,fronteras_filas[y]+indicesy,fronteras_columnas[x]+ancho_bloq+indicesx,fronteras_filas[y]+ancho_bloq+indicesy))
+			a_imagen_vector = np.array(imagen_3_crop_vector)
+			restaTotal += abs(a_imagen_comp-a_imagen_vector).sum()
+			print(restaTotal)
+			dibujo.line([(fronteras_columnas[x+1], fronteras_filas[y+1]), (fronteras_columnas[x+1]-offset+indicesx, fronteras_filas[y+1]-offset+indicesy)], fill="blue")
+	print ("Diferencia entre las imagenes con los vectores: "+str(restaTotal))
+	print ("Diferencia entre las imagenes sin los vectores: "+str(abs((a_im4-a_im3)).sum()))
+	im2.show()
+	input("Presiona Enter para continuar...")
 
 	#im2.show()
-	im2.save("frame"+str(p+1)+"Vectores.bmp")
+	im2.save("./PruebaCorrNorm/frame"+str(p+1)+"Vectores.bmp")
