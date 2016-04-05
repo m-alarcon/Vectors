@@ -6,14 +6,14 @@ import json
 
 def conv(g_l, g_r):
 	
-	res = abs((g_l-g_r)).sum()
+	res = np.sum(np.absolute((g_l-g_r)))
 
 	return res
 
 
 pixeles = 0
 
-for p in range(444, 446):
+for p in range(445, 446):
 	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD1.bmp")#+str(p)+".bmp")
 	im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p)+".bmp")
 	print("Imagen anterior: Mario " + str(p))
@@ -81,14 +81,14 @@ for p in range(444, 446):
 	for y in range(0, fronteras_filas.shape[0] - 2):
 		for x in range(0, fronteras_columnas.shape[0] - 2):
 			#Recorrer el cuadro grande e ir sacando todos los bloques cuadrados
-			imagen_comp = im4.crop((fronteras_columnas[x]+offset,fronteras_filas[y]+offset,fronteras_columnas[x]+ancho_bloq+offset,fronteras_filas[y]+ancho_bloq+offset))
+			imagen_comp = im3.crop((fronteras_columnas[x]+offset,fronteras_filas[y]+offset,fronteras_columnas[x]+ancho_bloq+offset,fronteras_filas[y]+ancho_bloq+offset))
 
-			a_imagen_comp = np.array(imagen_comp)
-			corr_vector = np.zeros((ancho_bloq,ancho_bloq), 'int')
+			a_imagen_comp = np.array(imagen_comp,'int32')
+			corr_vector = np.zeros((ancho_bloq,ancho_bloq), 'float')
 			for i in range(0, corr_vector.shape[0]):
 				for j in range(0, corr_vector.shape[1]):
-					imagen = im3.crop((fronteras_columnas[x]+j,fronteras_filas[y]+i,fronteras_columnas[x]+ancho_bloq+j,fronteras_filas[y]+ancho_bloq+i))
-					a_imagen = np.array(imagen)
+					imagen = im4.crop((fronteras_columnas[x]+j,fronteras_filas[y]+i,fronteras_columnas[x]+ancho_bloq+j,fronteras_filas[y]+ancho_bloq+i))
+					a_imagen = np.array(imagen,'int32')
 					corr_vector[i,j] = conv(a_imagen_comp, a_imagen)
 					#print(conv(a_imagen_comp, a_imagen))
 					#dibujo.rectangle((fronteras_columnas[x]+offset, fronteras_filas[y]+offset) + (fronteras_columnas[x]+ancho_bloq+offset, fronteras_filas[y]+ancho_bloq+offset), outline="blue")
@@ -110,7 +110,7 @@ for p in range(444, 446):
 			dibujo.rectangle([(fronteras_columnas[x]+indicesx, fronteras_filas[y]+indicesy), (fronteras_columnas[x]+ancho_bloq+indicesx, fronteras_filas[y]+ancho_bloq+indicesy)], outline="red")
 			dibujo.line([(fronteras_columnas[x+1], fronteras_filas[y+1]), (fronteras_columnas[x+1]-offset+indicesx, fronteras_filas[y+1]-offset+indicesy)], fill="blue")
 	print ("Diferencia entre las imagenes con los vectores: "+str(restaTotal))
-	print ("Diferencia entre las imagenes sin los vectores: "+str(abs((a_im4-a_im3)).sum()))
+	print ("Diferencia entre las imagenes sin los vectores: "+str(np.absolute((a_im4-a_im3)).sum()))
 	im2.show()
 	input("Presiona Enter para continuar...")
 

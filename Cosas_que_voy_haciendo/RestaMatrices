@@ -1,0 +1,13 @@
+from PIL import Image, ImageDraw
+import numpy as np
+import cv2
+import math
+
+a = np.array([0, 240],'float')
+b = np.array([[255, 0],[-200, 2]],'float')
+c = b-a
+print (c)
+d = np.absolute(a-b)
+print(d)
+e = np.sum(d)
+print(e)

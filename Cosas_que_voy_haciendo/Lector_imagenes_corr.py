@@ -24,7 +24,7 @@ def conv(g_i, g_h):
 
 pixeles = 0
 
-for p in range(444, 446):
+for p in range(445, 446):
 	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD1.bmp")#+str(p)+".bmp")
 	im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p)+".bmp")
 	print("Imagen anterior: Mario " + str(p))
@@ -119,7 +119,7 @@ for p in range(444, 446):
 			dibujo.rectangle([(fronteras_columnas[x]+indicesx, fronteras_filas[y]+indicesy), (fronteras_columnas[x]+ancho_bloq+indicesx, fronteras_filas[y]+ancho_bloq+indicesy)], outline="red")
 			imagen_3_crop_vector = im3.crop((fronteras_columnas[x]+indicesx,fronteras_filas[y]+indicesy,fronteras_columnas[x]+ancho_bloq+indicesx,fronteras_filas[y]+ancho_bloq+indicesy))
 			a_imagen_vector = np.array(imagen_3_crop_vector)
-			restaTotal += abs(a_imagen_comp-a_imagen_vector).sum()
+			restaTotal += np.sum(np.absolute(a_imagen_comp-a_imagen_vector))
 			print(restaTotal)
 			dibujo.line([(fronteras_columnas[x+1], fronteras_filas[y+1]), (fronteras_columnas[x+1]-offset+indicesx, fronteras_filas[y+1]-offset+indicesy)], fill="blue")
 	print ("Diferencia entre las imagenes con los vectores: "+str(restaTotal))
