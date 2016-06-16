@@ -12,22 +12,16 @@ def conv(g_l, g_r):
 
 
 pixeles = 0
+nombre_imagen = "Bola"
 
-for p in range(445, 446):
-	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD1.bmp")#+str(p)+".bmp")
-	im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p)+".bmp")
-	print("Imagen anterior: Mario " + str(p))
-	#im = Image.open("D:/Downloads/Beca/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD"+str(p)+".bmp")
-	#im = Image.open("C:/Users/malarcon/Desktop/Alcatel/Fondo2.jpg")
-	#im2 = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/SD_sillon/frameSD"+str(p+1)+".bmp")
-	im2 = Image.open("C:/Users/malarcon/Desktop/Alcatel/Cosas_que_voy_haciendo/Fotogramas para usar/Mario/mario"+str(p+1)+".bmp")
-	print("Imagen siguiente: Mario " + str(p+1))
-	#im2 = Image.open("D:/Downloads/Beca/Cosas_que_voy_haciendo/Fotogramas para usar/SD/frameSD"+str(p)+".bmp")#estoy utilizando el mismo fotograma en los dos
-	#im2 = im
+for p in range(1, 29):
+	im = Image.open("C:/Users/malarcon/Images/"+nombre_imagen+"/frame"+str(p)+".bmp")
+	print("Imagen anterior: "+nombre_imagen+" " + str(p))
+	im2 = Image.open("C:/Users/malarcon/Images/"+nombre_imagen+"/frame"+str(p+1)+".bmp")
+	print("Imagen siguiente: "+nombre_imagen+" " + str(p+1))
 	dibujo = ImageDraw.Draw(im2)
 	im3 = im.convert('L')
 	a_im3 = np.array(im3)
-	#im3.show()
 	im4 = im2.convert('L')
 	a_im4 = np.array(im4)
 	print (im.format, im.size, im.mode)
@@ -77,6 +71,8 @@ for p in range(445, 446):
 			fronteras_comp_columnas[i] = fronteras_comp_columnas[i-1]+ancho_bloq
 
 	restaTotal = 0
+	m_vectores_x = np.zeros((fronteras_filas.shape[0] - 2,fronteras_columnas.shape[0] - 2), 'int8')
+	m_vectores_y = np.zeros((fronteras_filas.shape[0] - 2,fronteras_columnas.shape[0] - 2), 'int8')
 	#Recorrer todos los cuadros de comparación de la imagen completa
 	for y in range(0, fronteras_filas.shape[0] - 2):
 		for x in range(0, fronteras_columnas.shape[0] - 2):
@@ -90,29 +86,40 @@ for p in range(445, 446):
 					imagen = im4.crop((fronteras_columnas[x]+j,fronteras_filas[y]+i,fronteras_columnas[x]+ancho_bloq+j,fronteras_filas[y]+ancho_bloq+i))
 					a_imagen = np.array(imagen,'int32')
 					corr_vector[i,j] = conv(a_imagen_comp, a_imagen)
-					#print(conv(a_imagen_comp, a_imagen))
-					#dibujo.rectangle((fronteras_columnas[x]+offset, fronteras_filas[y]+offset) + (fronteras_columnas[x]+ancho_bloq+offset, fronteras_filas[y]+ancho_bloq+offset), outline="blue")
-					#dibujo.rectangle((fronteras_columnas[x]+j, fronteras_filas[y]+i) + (fronteras_columnas[x]+ancho_bloq+j, fronteras_filas[y]+ancho_bloq+i), outline="blue")
-					#im2.show()
-					#input("Presiona Enter para continuar...")
-			#print(corr_vector)
-			#input("Presiona Enter para continuar...")
-			if(np.where(corr_vector == corr_vector.min())[0].shape[0] > 1):	#Hay que elegir uno de los que salen, elijo el del centro
-				indicesx = int(ancho_bloq/2)
-				indicesy = int(ancho_bloq/2)
+			if(np.where(corr_vector == corr_vector.min())[1].shape[0] > 1):	#Hay que elegir uno de los que salen, elijo el del centro
+				#print (np.where(corr_vector == corr_vector.min())[1].shape[0])
+				if(np.where(corr_vector == corr_vector.min())[1].shape[0] == ancho_bloq):	#Hay que elegir uno de los que salen, elijo el del centro
+					if(np.where(corr_vector == corr_vector.min())[0].shape[0] == ancho_bloq):
+						#print("Hay menos de ancho_bloq*ancho_bloq")
+						indicesx = np.where(corr_vector == corr_vector.min())[1][int(np.where(corr_vector == corr_vector.min())[1].shape[0]/2)]
+						indicesy = np.where(corr_vector == corr_vector.min())[0][int(np.where(corr_vector == corr_vector.min())[0].shape[0]/2)]
+					else:
+						indicesx = np.where(corr_vector == corr_vector.min())[1][int(np.where(corr_vector == corr_vector.min())[1].shape[0]/2)]
+						indicesy = int(ancho_bloq/2)
+				elif(np.where(corr_vector == corr_vector.min())[1].shape[0] != ancho_bloq):
+					if(np.where(corr_vector == corr_vector.min())[0].shape[0] == ancho_bloq):
+						#print("Hay menos de ancho_bloq*ancho_bloq")
+						indicesx = int(ancho_bloq/2)
+						indicesy = np.where(corr_vector == corr_vector.min())[0][int(np.where(corr_vector == corr_vector.min())[0].shape[0]/2)]
+					else:#(np.where(corr_vector == corr_vector.min())[0].shape[0] == ancho_bloq):	#Hay que elegir uno de los que salen, elijo el del centro
+						#print("Todos los cuadros son iguales")
+						indicesx = int(ancho_bloq/2)
+						indicesy = int(ancho_bloq/2)
 			else:
 				indicesx = np.where(corr_vector == corr_vector.min())[1]
 				indicesy = np.where(corr_vector == corr_vector.min())[0]
-			restaTotal += corr_vector[indicesx, indicesy]
-			print(restaTotal)
-			#print(indicesx, indicesy)
+			restaTotal += corr_vector[indicesy, indicesx]
+
 			dibujo.rectangle([(fronteras_columnas[x]+offset, fronteras_filas[y]+offset), (fronteras_columnas[x]+ancho_bloq+offset, fronteras_filas[y]+ancho_bloq+offset)], outline="green")
 			dibujo.rectangle([(fronteras_columnas[x]+indicesx, fronteras_filas[y]+indicesy), (fronteras_columnas[x]+ancho_bloq+indicesx, fronteras_filas[y]+ancho_bloq+indicesy)], outline="red")
 			dibujo.line([(fronteras_columnas[x+1], fronteras_filas[y+1]), (fronteras_columnas[x+1]-offset+indicesx, fronteras_filas[y+1]-offset+indicesy)], fill="blue")
+			m_vectores_x[y][x] = abs(-offset+indicesx)
+			m_vectores_y[y][x] = abs(-offset+indicesy)
+
 	print ("Diferencia entre las imagenes con los vectores: "+str(restaTotal))
 	print ("Diferencia entre las imagenes sin los vectores: "+str(np.absolute((a_im4-a_im3)).sum()))
-	im2.show()
-	input("Presiona Enter para continuar...")
+	#input("Presiona Enter para continuar...")
 
-	#im2.show()
-	im2.save("./PruebaResta/frame"+str(p+1)+"Vectores.bmp")
+	np.savetxt("vectorx"+nombre_imagen+str(p+1)+".txt", m_vectores_x, fmt='%i', delimiter=' ')
+	np.savetxt("vectory"+nombre_imagen+str(p+1)+".txt", m_vectores_y, fmt='%i', delimiter=' ')	
+	im2.save("./PruebaResta/"+nombre_imagen+str(p+1)+"Vectores.bmp")

@@ -1,0 +1,27 @@
+from PIL import Image, ImageDraw
+import numpy as np
+import cv2
+import math
+import json
+import time
+
+pixeles = 0
+n_fotogramas = 30
+with open("C:/Users/malarcon/Images/MetricasCuadrado/metricasframe1.txt") as archivo_json:
+	metricas = json.load(archivo_json)
+
+filas = int(len(metricas)/33)
+m_prx_ant = np.zeros((filas-2,31,n_fotogramas-1), 'float')
+m_prx_resta = np.zeros((filas-2,31,n_fotogramas-1), 'float')
+ancho_bloq = 45 #Igual que el alto (en general)
+#m_pry_ant = np.zeros((filas-2,31,n_fotogramas-1), 'float')
+#m_pry_resta = np.zeros((filas-2,31,n_fotogramas-1), 'float')
+#m_prx_ant_prueba = np.zeros((filas-2,31), 'float')
+#m_prx_resta_prueba = np.zeros((filas-2,31), 'float')
+#Creo las matrices que me van a decir si el bloque que estamos evaluando se ha desplazado en el fotograma anterior y la dirección hacia la 
+#que se ha movido (0 = sin movimiento, 1 = derecha, 2 = izquierda)
+m_mov_x = np.zeros((m_prx_ant.shape[1],m_prx_ant.shape[0]), 'uint8')
+m_num_rep = np.zeros((m_prx_ant.shape[1],m_prx_ant.shape[0]), 'int8')
+
+print (m_prx_ant.shape[0])
+print (m_mov_x.shape[0])

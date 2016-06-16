@@ -1,0 +1,5 @@
+TODO:
+- Poner un máximo de repeticiones que se pueden detectar para que los vectores no sean ridiculamente pequeños OK
+- Mantener los vectores en los bloques que ha habido movimiento hasta que se produzca un cambio en el siguiente bloque
+- Poner un máximo de veces que se mantiene el vector
+- Imprimir en un archivo todos los vectores
